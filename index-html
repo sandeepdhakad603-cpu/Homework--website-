@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My To-Do List</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: blue;
+            margin-bottom: 25px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 18px;
+            width: 60%;
+            border: 1px solid gray;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 5px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 25px;
+        }
+
+        li {
+            background-color: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px gray;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .task-text {
+            flex: 1;
+            text-align: left;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .done .task-text {
+            text-decoration: line-through;
+            color: green;
+        }
+
+        .delete-btn {
+            background-color: red;
+            margin: 0;
+        }
+
+        @media (max-width: 500px) {
+            input {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            li {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>My To-Do List 📝</h1>
+
+        <input
+            type="text"
+            id="task"
+            placeholder="Task likho"
+        >
+
+        <button onclick="addTask()">Add Task</button>
+
+        <ul id="list"></ul>
+
+    </div>
+
+    <script>
+
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        function saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function showTasks() {
+
+            const list = document.getElementById("list");
+
+            list.innerHTML = "";
+
+            tasks.forEach(function(task, index) {
+
+                const li = document.createElement("li");
+
+                if (task.done) {
+                    li.classList.add("done");
+                }
+
+                const span = document.createElement("span");
+
+                span.className = "task-text";
+                span.textContent = task.text;
+
+                span.onclick = function() {
+                    tasks[index].done = !tasks[index].done;
+                    saveTasks();
+                    showTasks();
+                };
+
+                const deleteButton = document.createElement("button");
+
+                deleteButton.textContent = "Delete 🗑️";
+                deleteButton.className = "delete-btn";
+
+                deleteButton.onclick = function() {
+                    tasks.splice(index, 1);
+                    saveTasks();
+                    showTasks();
+                };
+
+                li.appendChild(span);
+                li.appendChild(deleteButton);
+
+                list.appendChild(li);
+            });
+        }
+
+        function addTask() {
+
+            const input = document.getElementById("task");
+
+            const taskText = input.value.trim();
+
+            if (taskText === "") {
+                alert("Pehle task likho!");
+                return;
+            }
+
+            tasks.push({
+                text: taskText,
+                done: false
+            });
+
+            saveTasks();
+
+            input.value = "";
+
+            showTasks();
+        }
+
+        document.getElementById("task").addEventListener("keypress", function(event) {
+
+            if (event.key === "Enter") {
+                addTask();
+            }
+
+        });
+
+        showTasks();
+
+    </script>
+
+</body>
+</html>
